@@ -1,0 +1,613 @@
+\documentclass[10pt,letterpaper]{article}
+\textwidth = 6.5in
+\textheight = 9in
+\hoffset=-.75in
+\voffset=-.8in
+
+
+\usepackage{alltt}
+\usepackage{tcolorbox}
+%\tcbset{colback=green!20!white}
+
+
+\usepackage[pass]{geometry}
+\usepackage{color}   % Necessary for colored links
+
+\usepackage[hypcap=true]{caption}       % point to top of figure rather than caption in \hyperref
+
+%\usepackage[hypertex]{hyperref}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,    %set true if you want colored links
+    linkcolor=blue      %choose some color if you want links to stand out
+}
+
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{sectsty}
+\usepackage{amsmath}
+\usepackage{scrextend}
+
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{epsfig}
+
+%\graphicspath{ {./images/} }
+\usepackage{tikz}
+\usepackage{tikz-qtree}
+\usepackage{tikz-timing}
+	\usetikzlibrary{arrows.meta}
+	%\usetikztiminglibrary[simple]{advnodes}
+	\usetikztiminglibrary{advnodes}
+	\usetikzlibrary{automata, positioning, arrows}
+\usepackage{enumitem}
+\usepackage{placeins}
+
+
+
+\lstset{numbers=left, numberstyle=\small, stepnumber=1, numbersep=5pt, basicstyle=\footnotesize\ttfamily}
+
+
+\newcommand{\theListingFontFamily}{\ttfamily\footnotesize}
+
+\lstnewenvironment{tty}
+    {\lstset{language=sh, %
+        numbers=left,numberstyle=\tiny,stepnumber=1,numbersep=8pt, %
+        breaklines=true, %
+        frame=single, %
+        showtabs=false, %
+        basicstyle=\theListingFontFamily, %
+        showstringspaces=false, %
+        tabsize=4, %
+        showlines=true, %  show all blank lines
+        basicstyle=\theListingFontFamily}}
+    {}
+
+
+\newcommand{\reducedstrut}{\vrule width 0pt height .9\ht\strutbox depth .9\dp\strutbox\relax}
+\newcommand\scb[2]{\begingroup\fboxsep=0pt\colorbox{#1}{\reducedstrut#2\/}\endgroup}
+
+
+
+
+\sectionfont{\Large\sf\bfseries}
+\subsectionfont{\large\sf\bfseries}
+
+\pagestyle{fancy}
+% supress normal headings and footters
+\fancyhf{}
+% remove the heading rule
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{1pt}
+
+
+\lfoot{{\sf\scriptsize Copyright \copyright\ 2020,2022 John Winans.  All Rights Reserved}\\
+{\scriptsize\FooterText}}
+%\lfoot{\scriptsize\FooterText}
+
+\rfoot{Page \thepage\ of \pageref*{LastPage}}
+
+% Sub-footer that shows the VCS Header in the lfoot defined above
+\ifdefined\GitFileName
+    \newcommand{\FooterText}{\tt \GitFileName\\
+\GitDescription}
+\else
+    \newcommand{\FooterText}{\emph{--UNKNOWN--}}
+\fi
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{.51em}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{c_lightblue}{HTML}{B0E0FF}
+\definecolor{c_lightred}{HTML}{FFE0E0}
+\definecolor{c_lightyellow}{HTML}{FFF0a0}
+\definecolor{c_lightgreen}{HTML}{60FF60}
+\definecolor{c_lightgray}{HTML}{C0C0C0}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tcbset{colback=c_lightgreen!20!white}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Stack Organization}
+\author{John Winans}
+%\date{January 2022}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\thispagestyle{fancy}
+%\thispagestyle{plain}
+
+\section{Overview}
+
+A \textbf{stack} is an area of memory that is used to store data using what 
+is called a \textbf{LIFO} (Last In First Out) data structure.
+Data is inserted into a stack by using a \textbf{push} operation and removed by 
+using a \textbf{pop} operation.
+
+\section{Ascending/Descending (Direction of Growth)}
+
+During the initialization of an application, a section of memory is 
+reserved for the program's \textbf{call stack} (or simply the {\em program's stack.}
+The starting address of the stack is loaded into a \textbf{stack pointer}
+register that is then used to keep track of the location of the ``top'' of the stack.
+
+The section of memory reserved for a stack can grow (or ``be filled with data'') 
+from the highest address to the lowest or from the lowest address to the highest.%
+\footnote{Note that the direction of a stack's growth has nothing to do 
+with endianness.}
+
+When a stack is filled from the highest address to the lowest, the stack
+is referred to as a \textbf{descending} stack. When data elements are pushed onto
+a descending stack, the stack pointer is {\em decremented} by the number of 
+bytes pushed. When data elements are popped out of a descending stack,
+the stack pointer is {\em incremented} by the number of bytes popped.
+
+When a stack is filled from the lowest address to the highest, the
+stack is referred to as an \textbf{ascending} stack.  
+When data elements are pushed into an ascending stack, the stack pointer is 
+{\em incremented} by the number of bytes pushed and when data elements are 
+popped out of an ascending stack, it is {\em decremented} by the number of bytes popped.
+
+
+\section{Full vs Empty}
+
+A stack can also be classified as being full \textbf{full} or \textbf{empty}.
+
+In an empty stack, the stack pointer points to the next free (empty) 
+location on the stack.  
+When pushing data into an {\em empty} stack, the data is first stored in 
+the stack at the address in the stack pointer and then the stack pointer 
+is adjusted to reflect its new location.
+
+In a Full stack, the stack pointer points to the topmost item in the stack
+(the last item pushed into it.)
+When pushing data into a {\em Full} stack, 
+the stack pointer is first adjusted to reflect its new location and then
+the data is stored in the stack at the address in the stack pointer.
+
+In other words, this answers the question ``is the stack pointer
+pointing at a location where the {\em last} value that has been pushed into 
+the stack or does it point at a location where {\em next} pushed value 
+would go?
+
+
+
+
+\section{Conclusion}
+
+This allows for four different types of stack organizations:
+
+\begin{itemize}
+\item Full Descending
+\item Empty Descending
+\item Full Ascending
+\item Empty Ascending
+\end{itemize}
+
+Most microprocessors use a Full, Descending stack starting at the 
+highest memory address.
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Examples}
+
+This section presents an example of push and pop operations for each of the four
+types of stack implementation.
+
+The reader should observe that each type of {\em push} instruction varies only
+in that the SP register is adjusted either before (full) or after (empty) data 
+is stored into the stack memory and such adjustment is either done by adding 
+(ascending) or subtracting (descending) the number of bytes representing the 
+size of the value being pushed.
+
+The reader should also observe that each type of {\em pop} instruction varies only
+in that the SP register is adjusted either before (empty) or after (full) data
+is read from the stack memory and such adjustment is performed by either adding 
+(descending) or subtracting (ascending) the number of bytes representing the 
+size of the value being popped.
+
+
+
+
+
+
+
+\subsection{Descending Stacks}
+
+This section provides a detailed discussion of push and pop operations
+on descending stacks.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Full Descending Stack: Push}
+
+If a {\em Full Descending} stack is employed on a {\em big-endian} machine
+with the following memory contents:
+\begin{verbatim}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 e0 e9 3b e2
+00000100  91 de b5 9e e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{verbatim}
+and the SP (stack pointer) register is currently set to \verb@0x00000100@ then 
+a {\em push} of the 32-bit value \verb@0x01021a04@ onto the stack would be 
+performed like this:
+
+\begin{tabular}{ll}
+{\tt SP $\leftarrow$ SP - 4}              & // {\em pre}-decrement using operand size SP=\verb@0x000000fc@\\
+{\tt mem32(SP) $\leftarrow$ 0x01021a04}     & // store the 32-bit value into memory
+\end{tabular}
+
+Resulting in changing the contents of the four bytes at address 
+\verb@0x000000fc@ to this:
+\begin{alltt}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 \scb{c_lightyellow}{01 02 1a 04}
+00000100  91 de b5 9e e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+\ldots\ and SP=\verb@0x000000fc@.
+
+
+\begin{tcolorbox}
+Note that if this same example were run on a {\em little-endian} machine, 
+the only difference would be that the four bytes starting at memory address 
+\verb@0x000000fc@ would have been set to \verb@04 1a 02 01@ (rather than 
+\verb@01 02 1a 04@) like this:
+
+\begin{alltt}
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 \scb{c_lightyellow}{04 1a 02 01}
+\end{alltt}
+
+The SP register will have started the same as before (at \verb@0x00000100@) 
+and finished the same as before as well (at \verb@0x000000fc@.) 
+\end{tcolorbox}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Full Descending Stack: Pop}
+
+If the SP register contains the value \verb@0x000000fc@ and the memory contains:
+
+\begin{alltt}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 \scb{c_lightyellow}{01 02 1a 04}
+00000100  \scb{c_lightyellow}{91 de b5 9e} \scb{c_lightyellow}{e1 90 d4 b5}  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+
+\ldots\ then if we {\em pop} three 32-bit values out of the stack into registers A, B, and C:
+
+\begin{tabular}{ll}
+{\tt A $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP + 4}     & // {\em post}-increment using operand size SP=\verb@0x00000100@\\
+{\tt B $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP + 4}     & // {\em post}-increment using operand size SP=\verb@0x00000104@\\
+{\tt C $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP + 4}     & // {\em post}-increment using operand size SP=\verb@0x00000108@
+\end{tabular}
+
+\ldots\ then the SP register will contain \verb@0x00000108@, 
+A=\verb@0x01021a04@, B=\verb@0x91deb59e@, C=\verb@0xe190d4b5@ and 
+the contents of the memory will not have been changed by the pop operations.
+
+\begin{tcolorbox}
+Note that if this same example were run on a {\em little-endian} machine
+starting with the same register and memory contents as a big-endiam example above 
+then the three pop instructions would have resulted in SP=\verb@0x00000108@,
+A=\verb@0x041a0201@, B=\verb@0x9eb5de91@, C=\verb@0xb5d490e1@ and, again,
+the contents of the memory will not have been changed by the pop operations.
+\end{tcolorbox}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Empty Descending Stack: Push}
+
+{\em Note that the difference between a Full Descending and an Empty Descending stack 
+is simply the order in which the operations are performed in the RTL (pseudocode)
+that describes when the SP register is decremented and when the values are stored
+into the stack.}
+
+If an {\em Empty Descending} stack is employed on a {\em big-endian} machine
+with the following memory contents:
+\begin{verbatim}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 e0 e9 3b e2
+00000100  91 de b5 9e e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{verbatim}
+and the SP (stack pointer) register is set to \verb@0x00000100@ then 
+a {\em push} of the 32-bit value \verb@0x01021a04@ onto the stack would be 
+performed like this:
+
+\begin{tabular}{ll}
+{\tt mem32(SP) $\leftarrow$ 0x01021a04}     & // store the 32-bit value into memory\\
+{\tt SP $\leftarrow$ SP - 4}              & // {\em post}-decrement using operand size SP=\verb@0x000000fc@
+\end{tabular}
+
+Resulting in changing the contents of the four bytes at address 
+\verb@0x00000100@ to this:
+\begin{alltt}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 e0 e9 3b e2
+00000100  \scb{c_lightyellow}{01 02 1a 04} e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+\ldots\ and SP=\verb@0x000000fc@.
+
+
+\begin{tcolorbox}
+Note that if this same example were run on a {\em little-endian} machine, 
+the only difference would be that the four bytes starting at memory address 
+\verb@0x00000100@ would have been set to \verb@04 1a 02 01@ (rather than 
+\verb@01 02 1a 04@) like this:
+
+\begin{alltt}
+00000100  \scb{c_lightyellow}{04 1a 02 01} e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+
+The SP register will have started the same as on a big-endian machine (at \verb@0x00000100@) 
+and finished the same (at \verb@0x000000fc@.)
+\end{tcolorbox}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Empty Descending Stack: Pop}
+
+{\em As seen in the Empty Descending Push example, the only difference between a 
+Full Descending and an Empty Descending stack is the order in which the operations 
+are performed in the RTL (pseudocode).}
+
+If the SP register contains the value \verb@0x000000fc@ and the memory contains:
+
+\begin{alltt}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 01 02 1a 04
+00000100  \scb{c_lightyellow}{91 de b5 9e} \scb{c_lightyellow}{e1 90 d4 b5}  \scb{c_lightyellow}{06 d7 66 ad} 79 dc 17 fb
+\end{alltt}
+
+\ldots\ then if we {\em pop} three 32-bit values out of the stack into registers A, B, and C:
+
+\begin{tabular}{ll}
+{\tt SP $\leftarrow$ SP + 4}     & // {\em pre}-increment using operand size SP=\verb@0x00000100@\\
+{\tt A $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP + 4}     & // {\em pre}-increment using operand size SP=\verb@0x00000104@\\
+{\tt B $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP + 4}     & // {\em pre}-increment using operand size SP=\verb@0x00000108@\\
+{\tt C $\leftarrow$ mem32(SP)}     & // load from memory address in SP register
+\end{tabular}
+
+\ldots\ then the SP register will contain \verb@0x00000108@, 
+A=\verb@0x91deb59e@, B=\verb@0xe190d4b5@, C=\verb@0x06d766ad@ and 
+the contents of the memory will not have been changed by the pop operations.
+
+\begin{tcolorbox}
+Note that if this same example were run on a {\em little-endian} machine
+starting with the same register and memory contents as a big-endiam example above 
+then the three pop instructions would have resulted in SP=\verb@0x00000108@,
+A=\verb@0x9eb5de91@, B=\verb@0xb5d490e1@, C=\verb@0xad66d706@ and, again,
+the contents of the memory will not have been changed by the pop operations.
+\end{tcolorbox}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsection{Ascending Stacks}
+
+This section provides a detailed discussion of push and pop operations
+on ascending stacks.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Full Ascending Stack: Push}
+
+{\em The only difference between a Full Ascending push and a Full Descending push 
+is that the stack pointer is incremented rather than decremented in the RTL (pseudocode).}
+
+If a {\em Full Ascending} stack is employed on a {\em big-endian} machine
+with the following memory contents:
+\begin{verbatim}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 e0 e9 3b e2
+00000100  91 de b5 9e e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{verbatim}
+and the SP (stack pointer) register is set to \verb@0x00000100@ then 
+a {\em push} of the 32-bit value \verb@0x01021a04@ onto the stack would be 
+performed like this:
+
+\begin{tabular}{ll}
+{\tt SP $\leftarrow$ SP + 4}              & //  pre-{\em increment} using operand size SP=\verb@0x00000104@\\
+{\tt mem32(SP) $\leftarrow$ 0x01021a04}     & // store the 32-bit value into memory
+\end{tabular}
+
+Resulting in changing the contents of the four bytes at address 
+\verb@0x00000104@ to this:
+\begin{alltt}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 e0 e9 3b e2
+00000100  91 de b5 9e \scb{c_lightyellow}{01 02 1a 04}  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+\ldots\ and SP=\verb@0x00000104@.
+
+
+\begin{tcolorbox}
+Note that if this same example were run on a {\em little-endian} machine, 
+the only difference would be that the four bytes starting at memory address 
+\verb@0x00000104@ would have been set to \verb@04 1a 02 01@ (rather than 
+\verb@01 02 1a 04@) like this:
+
+\begin{alltt}
+00000100  91 de b5 9e \scb{c_lightyellow}{04 1a 02 01}  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+
+The SP register will have started the same as on the big-endian machine (at \verb@0x00000100@) 
+and finished the same as well (at \verb@0x00000104@.) 
+\end{tcolorbox}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Full Ascending Stack: Pop}
+
+{\em The only difference between a Full Ascending pop and a Full Descending pop 
+is that the stack pointer is decremented rather than incremented in the RTL (pseudocode).}
+
+If the SP register contains the value \verb@0x00000100@ and the memory contains:
+
+\begin{alltt}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  \scb{c_lightyellow}{47 24 5b b3} \scb{c_lightyellow}{01 02 1a 04}
+00000100  \scb{c_lightyellow}{91 de b5 9e} e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+
+\ldots\ then if we {\em pop} three 32-bit values out of the stack into registers A, B, and C:
+
+\begin{tabular}{ll}
+{\tt A $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP - 4}     & // {\em post}-increment using operand size SP=\verb@0x000000fc@\\
+{\tt B $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP - 4}     & // {\em post}-increment using operand size SP=\verb@0x000000xf8@\\
+{\tt C $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP - 4}     & // {\em post}-increment using operand size SP=\verb@0x000000f4@
+\end{tabular}
+
+\ldots\ then the SP register will contain \verb@0x000000f4@, 
+A=\verb@0x91deb59e@, B=\verb@0x01021a04@, C=\verb@0xe47245bb3@ and 
+the contents of the memory will not have been changed by the pop operations.
+
+\begin{tcolorbox}
+Note that if this same example were run on a {\em little-endian} machine
+starting with the same register and memory contents as a big-endiam example above 
+then the three pop instructions would have resulted in SP=\verb@0x000000f4@,
+A=\verb@0x9eb5de91@, B=\verb@0x041a0201@, C=\verb@0xb35b2447@ and, again,
+the contents of the memory will not have been changed by the pop operations.
+\end{tcolorbox}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Empty Ascending Stack: Push}
+
+{\em The only difference between a Full Ascending push and an Empty Ascending push 
+is the order in which the operations are performed in the RTL (pseudocode)
+that describe when the SP register is incremented and when the values are stored
+into the stack.}
+
+If an {\em Empty Ascending} stack is employed on a {\em big-endian} machine
+with the following memory contents:
+\begin{verbatim}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 e0 e9 3b e2
+00000100  91 de b5 9e e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{verbatim}
+and the SP (stack pointer) register is set to \verb@0x00000100@ then 
+a {\em push} of the 32-bit value \verb@0x01021a04@ onto the stack would be 
+performed like this:
+
+\begin{tabular}{ll}
+{\tt mem32(SP) $\leftarrow$ 0x01021a04}     & // store the 32-bit value into memory\\
+{\tt SP $\leftarrow$ SP + 4}              & //  post-{\em increment} using operand size SP=\verb@0x00000104@
+\end{tabular}
+
+Resulting in changing the contents of the four bytes at address 
+\verb@0x00000104@ to this:
+\begin{alltt}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  78 31 b8 c2 a7 d0 de 27  47 24 5b b3 e0 e9 3b e2
+00000100  \scb{c_lightyellow}{01 02 1a 04} e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+\ldots\ and SP=\verb@0x00000104@.
+
+
+\begin{tcolorbox}
+Note that if this same example were run on a {\em little-endian} machine, 
+the only difference would be that the four bytes starting at memory address 
+\verb@0x00000100@ would have been set to \verb@04 1a 02 01@ (rather than 
+\verb@01 02 1a 04@) like this:
+
+\begin{alltt}
+00000100  \scb{c_lightyellow}{04 1a 02 01} e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+
+The SP register will have started the same as on the big-endian machine (at \verb@0x00000100@) 
+and finished the same as well (at \verb@0x00000104@.) 
+\end{tcolorbox}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Empty Ascending Stack: Pop}
+
+{\em The only difference between an Empty Ascending pop and a Full Ascending pop 
+is the order in which the operations are performed in the RTL (pseudocode)
+that describe when the SP register is decremented and when the values are stored
+into the stack.}
+
+If the SP register contains the value \verb@0x000000fc@ and the memory contains:
+
+\begin{alltt}
+000000e0  c9 b9 6e 41 b2 85 af 8d  c8 71 dd 31 12 2b 2c f9
+000000f0  \scb{c_lightyellow}{78 31 b8 c2} \scb{c_lightyellow}{a7 d0 de 27}  \scb{c_lightyellow}{47 24 5b b3} 01 02 1a 04
+00000100  91 de b5 9e e1 90 d4 b5  06 d7 66 ad 79 dc 17 fb
+\end{alltt}
+
+\ldots\ then if we {\em pop} three 32-bit values out of the stack into registers A, B, and C:
+
+\begin{tabular}{ll}
+{\tt SP $\leftarrow$ SP - 4}     & // {\em pre}-decrement using operand size SP=\verb@0x000000f8@\\
+{\tt A $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP - 4}     & // {\em pre}-decrement using operand size SP=\verb@0x000000f4@\\
+{\tt B $\leftarrow$ mem32(SP)}     & // load from memory address in SP register\\
+{\tt SP $\leftarrow$ SP - 4}     & // {\em pre}-decrement using operand size SP=\verb@0x000000f0@\\
+{\tt C $\leftarrow$ mem32(SP)}     & // load from memory address in SP register
+\end{tabular}
+
+\ldots\ then the SP register will contain \verb@0x000000f0@, 
+A=\verb@0x47245bb3@, B=\verb@0xa7d0de27@, C=\verb@0x7831b8c2@ and 
+the contents of the memory will not have been changed by the pop operations.
+
+\begin{tcolorbox}
+Note that if this same example were run on a {\em little-endian} machine
+starting with the same register and memory contents as a big-endiam example above 
+then the three pop instructions would have resulted in SP=\verb@0x000000f0@,
+A=\verb@0xb35b2447@, B=\verb@0x27ded0a7@, C=\verb@0xc2b83178@ and, again,
+the contents of the memory will not have been changed by the pop operations.
+\end{tcolorbox}
+
+
+
+
+
+\end{document}

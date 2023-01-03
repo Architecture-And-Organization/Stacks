@@ -1,2 +1,1 @@
-# Stacks
-Types of Machine Stacks
+# Stack Organization
